@@ -24,7 +24,19 @@ const uploadOnCloudinary = async (localFilePath) => {
   }
 };
 
-export { uploadOnCloudinary };
+// code for todo : delete avatar from cloudinary
+
+const deleteFromCloudinary = async (public_id) => {
+  try {
+    const result = await cloudinary.uploader.destroy(public_id);
+    return result;
+  } catch (err) {
+    console.log("Error deleting from Cloudinary", err);
+    throw err;
+  }
+};
+
+export { uploadOnCloudinary, deleteFromCloudinary };
 
 // cloudinary.v2.uploader
 //   .upload("dog.mp4", {
