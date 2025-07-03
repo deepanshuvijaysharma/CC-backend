@@ -209,7 +209,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       throw new ApiError(401, "Invalid refresh token");
     }
 
-    if (incomingRefreshToken !== user?.refreshAccessToken) {
+    if (incomingRefreshToken !== user?.refreshToken) {
       throw new ApiError(401, "Refresh token is expired or used");
     }
 
@@ -251,7 +251,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .join(new ApiResponse(200, {}, "Password changed Successfully"));
+    .json(new ApiResponse(200, {}, "Password changed Successfully"));
 });
 
 const getCurrentUser = asyncHandler(async (req, res) => {
@@ -424,7 +424,6 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(200)
     .json(
       new ApiResponse(200, channel[0], "User channel fetched successfully")
     );
@@ -445,18 +444,21 @@ const getWatchHistory = asyncHandler(async (req, res) => {
         as: "watchHistory",
         pipeline: [
           {
-            $lookup: "users",
-            localField: "owner",
-            as: "owner",
-            pipeline: [
-              {
-                $project: {
-                  fullName: 1,
-                  username: 1,
-                  avatar: 1,
+            $lookup: {
+              from: "users",
+              localField: "owner",
+              foreignField: "_id",
+              as: "owner",
+              pipeline: [
+                {
+                  $project: {
+                    fullName: 1,
+                    username: 1,
+                    avatar: 1,
+                  },
                 },
-              },
-            ],
+              ],
+            },
           },
           {
             $addFields: {
